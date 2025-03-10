@@ -8,7 +8,7 @@ Yalla Kora Match Scraper is a Python-based tool that fetches football match deta
  Introduces random delays to mimic human behavior and avoid request blocking.
  Saves the extracted data in a well-structured CSV file for easy access.
 
-⚙ Technologies Used
+ Technologies Used
 
 Python (Core programming language)
 Requests (For making HTTP requests)
