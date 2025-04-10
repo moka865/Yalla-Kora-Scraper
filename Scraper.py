@@ -43,34 +43,53 @@ def scrape_matches(html_content, match_date):
     
     return all_matches
 
+
+
 def extract_match_info(championship, match_date):
     """Extracts match details from a championship section."""
     match_info = []
-    championship_name = championship.find('h2').text.strip()
-    matches = championship.find_all('div', class_='liItem')
+    
+    # محاولة استخراج اسم البطولة
+    try:
+        championship_name = championship.find('h2').text.strip() if championship.find('h2') else "No Championship Name"
+    except AttributeError:
+        championship_name = "No Championship Name"
 
+    # استخراج جميع المباريات
+    matches = championship.find_all('div', class_='liItem')
+    
+    if not matches:
+        print(f"No matches found in championship: {championship_name}")
+    
     for match in matches:
         try:
-            team_a = match.find('li', class_='ScoreCell__Item--home').find('div', class_='ScoreCell__TeamName').text.strip()
-            team_b = match.find('li', class_='ScoreCell__Item--away').find('div', class_='ScoreCell__TeamName').text.strip()
-
-            scores = match.find('div', class_='MResult').find_all('span', class_='score')
+            # محاولة استخراج أسماء الفرق
+            team_a = match.find('li', class_='ScoreCell__Item--home')
+            team_b = match.find('li', class_='ScoreCell__Item--away')
+            
+            team_a_name = team_a.find('div', class_='ScoreCell__TeamName').text.strip() if team_a else "No Team A"
+            team_b_name = team_b.find('div', class_='ScoreCell__TeamName').text.strip() if team_b else "No Team B"
+            
+            # محاولة استخراج النتيجة
+            scores = match.find('div', class_='MResult').find_all('span', class_='score') if match.find('div', class_='MResult') else []
             score = " - ".join(s.text.strip() for s in scores) if scores else "Not played yet"
 
-            match_time = match.find('div', class_='MResult').find('span', class_='time')
+            # محاولة استخراج وقت المباراة
+            match_time = match.find('div', class_='MResult').find('span', class_='time') if match.find('div', class_='MResult') else None
             match_time = match_time.text.strip() if match_time else "Not available"
-
+            
+            # إضافة التفاصيل في القائمة
             match_info.append({
                 'Match Date': match_date,
                 'Championship': championship_name,
-                'Team A': team_a,
-                'Team B': team_b,
+                'Team A': team_a_name,
+                'Team B': team_b_name,
                 'Score': score,
                 'Time': match_time
             })
         except AttributeError:
             print(f"Could not extract match data in {championship_name}")
-    
+
     return match_info
 
 
